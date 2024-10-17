@@ -9,7 +9,7 @@ interface BudgetCategory {
 const COLORS = ['#60A5FA', '#34D399', '#FBBF24', '#F87171', '#A78BFA'];
 
 const Budget: React.FC = () => {
-  const [categories, setCategories] = useState<BudgetCategory[]>([
+  const [categories] = useState<BudgetCategory[]>([
     { name: 'Housing', amount: 1000 },
     { name: 'Food', amount: 500 },
     { name: 'Transportation', amount: 300 },
@@ -49,7 +49,7 @@ const Budget: React.FC = () => {
                   fill="#8884d8"
                   dataKey="amount"
                 >
-                  {categories.map((entry, index) => (
+                  {categories.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
