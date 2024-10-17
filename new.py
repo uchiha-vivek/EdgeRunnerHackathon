@@ -3,160 +3,160 @@ from streamlit import session_state
 import time
 import base64
 import os
-from vectors import EmbeddingsManager
-from chatbot import ChatbotManager
+from vectors import FinancialDocumentProcessor
+from chatbot import FinancialChatbotManager
 
-# Function to display the PDF of a given file
 def displayPDF(file):
     base64_pdf = base64.b64encode(file.read()).decode('utf-8')
     pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600" type="application/pdf"></iframe>'
     st.markdown(pdf_display, unsafe_allow_html=True)
 
-# Initialize session_state variables
 if 'temp_pdf_path' not in st.session_state:
     st.session_state['temp_pdf_path'] = None
+
 if 'chatbot_manager' not in st.session_state:
     st.session_state['chatbot_manager'] = None
+
 if 'messages' not in st.session_state:
     st.session_state['messages'] = []
 
-# Set page configuration
 st.set_page_config(
-    page_title="FinDoc Analyzer",
+    page_title="FinDocs Analyzer",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # Custom CSS for finance theme
 st.markdown("""
-    <style>
-    .main {
-        background-color: #f0f5f9;
+<style>
+    .stApp {
+        background-color: #f0f3f6;
     }
     .stButton>button {
+        color: #ffffff;
         background-color: #1e3a8a;
-        color: white;
+        border-radius: 5px;
     }
     .stTextInput>div>div>input {
-        background-color: #ffffff;
+        border-radius: 5px;
     }
     h1, h2, h3 {
         color: #1e3a8a;
     }
-    .stSidebar {
-        background-color: #1e3a8a;
-        color: white;
-    }
-    .stSidebar .stSelectbox label {
-        color: white !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+</style>
+""", unsafe_allow_html=True)
 
-# Sidebar
 with st.sidebar:
-    st.image("finance.pngb", use_column_width=True)
-    st.markdown("### FinDoc Analyzer")
-    st.markdown("Your AI-powered financial document assistant")
+    st.image("finance.png", use_column_width=True)
+    st.markdown("### 📊 FinDocs Analyzer")
     st.markdown("---")
-    menu = ["Dashboard", "Document Analysis", "Chat Assistant", "About"]
+    
+    menu = ["📈 Dashboard", "🤖 AI Assistant", "📞 Support"]
     choice = st.selectbox("Navigate", menu)
 
-# Dashboard
-if choice == "Dashboard":
-    st.title("FinDoc Analyzer Dashboard")
+if choice == "📈 Dashboard":
+    st.title("📄 FinDocs Analyzer Dashboard")
     st.markdown("""
-    Welcome to **FinDoc Analyzer**!
+    Welcome to **FinDocs Analyzer**! 🚀
 
-    Harness the power of AI to analyze and interact with your financial documents:
+    **Powered by Advanced AI and Natural Language Processing**
 
-    - 📊 **Document Upload**: Securely upload your financial PDFs
-    - 🔍 **Intelligent Analysis**: Get instant insights and summaries
-    - 💬 **AI Chat**: Ask questions about your documents in natural language
+    - **Upload Financial Documents**: Securely upload your PDF financial reports.
+    - **Analyze**: Get in-depth analysis and insights from your documents.
+    - **Interact**: Engage with our AI assistant for detailed financial queries.
 
-    Start by navigating to the Document Analysis section to upload your first document.
+    Enhance your financial document analysis with FinDocs Analyzer! 💼
     """)
 
-    # Add some dummy metrics for visual appeal
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Documents Analyzed", "27", "+3")
-    col2.metric("Time Saved", "89 hours", "+12%")
-    col3.metric("Accuracy Rate", "99.7%", "+0.2%")
-
-# Document Analysis Page
-elif choice == "Document Analysis":
-    st.title("Document Analysis")
+elif choice == "🤖 AI Assistant":
+    st.title("🤖 Financial AI Assistant")
+    st.markdown("---")
     
-    uploaded_file = st.file_uploader("Upload a financial document (PDF)", type=["pdf"])
-    if uploaded_file is not None:
-        st.success("File Uploaded Successfully!")
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("### Document Preview")
-            displayPDF(uploaded_file)
-        
-        with col2:
-            st.markdown("### Document Info")
-            st.markdown(f"**Filename:** {uploaded_file.name}")
-            st.markdown(f"**File Size:** {uploaded_file.size} bytes")
-            
-            st.markdown("### Actions")
-            if st.button("Create Embeddings"):
-                # Your embedding creation logic here
-                st.info("Embeddings created successfully!")
-            
-            if st.button("Generate Summary"):
-                # Your summary generation logic here
-                st.info("Summary generated. View in the Chat Assistant.")
+    col1, col2, col3 = st.columns([1, 1, 2])
 
-# Chat Assistant Page
-elif choice == "Chat Assistant":
-    st.title("AI Chat Assistant")
-    
-    if st.session_state['chatbot_manager'] is None:
-        st.info("Please upload a document and create embeddings in the Document Analysis section first.")
-    else:
-        st.markdown("Ask questions about your financial documents:")
-        
-        # Display chat messages
-        for msg in st.session_state['messages']:
-            st.chat_message(msg['role']).markdown(msg['content'])
-        
-        # User input
-        user_input = st.chat_input("Type your financial question here...")
-        if user_input:
-            st.session_state['messages'].append({"role": "user", "content": user_input})
-            st.chat_message("user").markdown(user_input)
+    with col1:
+        st.header("📂 Upload Financial Document")
+        uploaded_file = st.file_uploader("Upload a PDF", type=["pdf"])
+        if uploaded_file is not None:
+            st.success("📄 Financial Document Uploaded")
+            st.markdown(f"**Document:** {uploaded_file.name}")
+            st.markdown(f"**Size:** {uploaded_file.size/1000:.2f} KB")
             
-            with st.spinner("Analyzing..."):
-                # Your chatbot logic here
-                response = "This is a placeholder response. Implement your chatbot logic here."
+            temp_pdf_path = "temp_financial_doc.pdf"
+            with open(temp_pdf_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
             
-            st.session_state['messages'].append({"role": "assistant", "content": response})
-            st.chat_message("assistant").markdown(response)
+            st.session_state['temp_pdf_path'] = temp_pdf_path
 
-# About Page
-elif choice == "About":
-    st.title("About FinDoc Analyzer")
+    with col2:
+        st.header("🧠 Document Processing")
+        process_doc = st.button("🔍 Analyze Document")
+        if process_doc:
+            if st.session_state['temp_pdf_path'] is None:
+                st.warning("⚠️ Please upload a financial document first.")
+            else:
+                try:
+                    financial_processor = FinancialDocumentProcessor(
+                        model_name="BAAI/bge-small-en",
+                        device="cpu",
+                        encode_kwargs={"normalize_embeddings": True},
+                        qdrant_url="http://localhost:6333",
+                        collection_name="financial_docs_db"
+                    )
+                    
+                    with st.spinner("🔄 Processing financial data..."):
+                        result = financial_processor.process_financial_document(st.session_state['temp_pdf_path'])
+                        time.sleep(1)
+                    st.success(result)
+                    
+                    if st.session_state['chatbot_manager'] is None:
+                        st.session_state['chatbot_manager'] = FinancialChatbotManager(
+                            model_name="BAAI/bge-small-en",
+                            device="cpu",
+                            encode_kwargs={"normalize_embeddings": True},
+                            llm_model="llama3.2:3b",
+                            llm_temperature=0.7,
+                            qdrant_url="http://localhost:6333",
+                            collection_name="financial_docs_db"
+                        )
+                    
+                except Exception as e:
+                    st.error(f"An error occurred: {e}")
+
+    with col3:
+        st.header("💬 Financial Document Q&A")
+        
+        if st.session_state['chatbot_manager'] is None:
+            st.info("🤖 Please upload and analyze a financial document to start querying.")
+        else:
+            for msg in st.session_state['messages']:
+                st.chat_message(msg['role']).markdown(msg['content'])
+
+            if user_input := st.chat_input("Ask about the financial document..."):
+                st.chat_message("user").markdown(user_input)
+                st.session_state['messages'].append({"role": "user", "content": user_input})
+
+                with st.spinner("🤖 Analyzing..."):
+                    try:
+                        answer = st.session_state['chatbot_manager'].get_response(user_input)
+                        time.sleep(1)
+                    except Exception as e:
+                        answer = f"⚠️ An error occurred during analysis: {e}"
+                
+                st.chat_message("assistant").markdown(answer)
+                st.session_state['messages'].append({"role": "assistant", "content": answer})
+
+elif choice == "📞 Support":
+    st.title("📬 Contact FinDocs Support")
     st.markdown("""
-    FinDoc Analyzer is an AI-powered tool designed to revolutionize how financial professionals interact with documents.
+    For any inquiries or assistance with FinDocs Analyzer:
 
-    **Key Features:**
-    - 🧠 Powered by Llama 3.2 and BGE Embeddings
-    - 🔒 Secure local processing with Docker
-    - 🚀 Fast and accurate document analysis
-    - 💬 Interactive AI chat assistant
+    - **Email:** [support@findocsanalyzer.com](mailto:support@findocsanalyzer.com) ✉️
+    - **Phone:** +1 (555) 123-4567 ☎️
+    - **Hours:** Monday to Friday, 9 AM - 5 PM EST
 
-    **Tech Stack:**
-    - Llama 3.2 for natural language processing
-    - BGE Embeddings for document representation
-    - Qdrant for vector storage
-    - Streamlit for the user interface
-
-    For support or inquiries, contact: support@findocanalyzer.com
+    For technical support or to report issues, please visit our [Support Portal](https://support.findocsanalyzer.com).
     """)
 
-# Footer
 st.markdown("---")
-st.markdown("© 2024 FinDoc Analyzer | Powered by AI")
+st.markdown("© 2024 FinDocs Analyzer. All rights reserved. | [Privacy Policy](https://www.findocsanalyzer.com/privacy) | [Terms of Service](https://www.findocsanalyzer.com/terms)")
