@@ -9,7 +9,7 @@ interface Transaction {
 }
 
 const Transactions: React.FC = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>([
+  const [transactions] = useState<Transaction[]>([
     { id: 1, date: '2024-10-15', description: 'Salary', amount: 3000, type: 'income' },
     { id: 2, date: '2024-10-16', description: 'Grocery shopping', amount: 150, type: 'expense' },
     { id: 3, date: '2024-10-17', description: 'Freelance work', amount: 500, type: 'income' },
